@@ -21,16 +21,18 @@ module.exports = {
         jest: true,
     },
     rules: {
+        '@typescript-eslint/return-await': ['error', 'always'],
+        '@typescript-eslint/no-unused-vars': ['error', {
+            argsIgnorePattern: 'req|res|next'
+        }],
         '@typescript-eslint/interface-name-prefix': 'off',
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
-        '@typescript-eslint/return-await': ['error', 'always'],
         "simple-import-sort/imports": "error",
         "import/first": "error",
         "import/newline-after-import": ["error", { "count": 1 }],
         "import/no-duplicates": "error",
-        "prettier/prettier": ["error", { "endOfLine": "auto" }],
         'no-console': 'warn',
         'sort-imports': ['error', {
             'ignoreCase': true,
@@ -40,5 +42,5 @@ module.exports = {
             'allowSeparatedGroups': false
         }],
     },
-    ignorePatterns: ['.eslintrc.js', '**/*.generated.ts']
+    ignorePatterns: ['.eslintrc.js']
 };
