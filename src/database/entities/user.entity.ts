@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { CreatedUpdatedModel } from './entities/created-updated.model';
 
-@Entity('user')
+@Entity('users')
 export class UserEntity extends CreatedUpdatedModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;

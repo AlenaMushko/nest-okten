@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsEmail,
@@ -9,70 +8,53 @@ import {
 } from 'class-validator';
 
 export class UserCreateProfileDto {
-  @ApiProperty({ required: true, example: 'Alona' })
   @IsString()
   @IsNotEmpty()
   userName: string;
 
-  @ApiProperty({ required: true, example: 'user@gmail.com' })
   @IsString()
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
-  @ApiProperty({ required: true, example: true })
   @IsBoolean()
   @IsNotEmpty()
   status: boolean;
 }
 
 export class UserUpdateDto {
-  @ApiProperty({ example: 'Alona' })
   @IsString()
   @IsOptional()
   userName: string;
 
-  @ApiProperty({ example: 'user@gmail.com' })
   @IsString()
   @IsEmail()
   @IsOptional()
   email: string;
 
-  @ApiProperty({ example: true })
   @IsBoolean()
   @IsOptional()
   status: boolean;
 
-  @ApiProperty({ example: '+38(093)-52-24-590' })
   @IsString()
   @IsOptional()
-  phone: string;
+  phone?: string;
 
-  @ApiProperty({ example: 'Stryi' })
   @IsString()
   @IsOptional()
-  city: string;
+  city?: string;
 
-  @ApiProperty({ example: 37 })
   @IsNumber()
   @IsOptional()
-  age: number;
-}
-
-export class UserCreateResponse extends UserCreateProfileDto {
-  @ApiProperty()
-  createdAt: string;
-  @ApiProperty()
-  updatedAt: string;
-  @ApiProperty()
-  id: string;
+  age?: number;
 }
 
 export class UserUpdateResponse extends UserUpdateDto {
-  @ApiProperty()
-  createdAt: string;
-  @ApiProperty()
-  updatedAt: string;
-  @ApiProperty()
+  createdAt: Date;
+  id: string;
+}
+
+export class UserCreateResponse extends UserCreateProfileDto {
+  createdAt: Date;
   id: string;
 }

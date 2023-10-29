@@ -3,18 +3,11 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
   Param,
   Patch,
   Post,
-  Res,
 } from '@nestjs/common';
-import {
-  ApiExtraModels,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import {
   UserCreateProfileDto,
@@ -22,99 +15,66 @@ import {
   UserUpdateDto,
   UserUpdateResponse,
 } from './dto/user.dto';
+import { UserResMapper } from './user.res.mapper';
 import { UserService } from './user.service';
 
-@Controller('user')
 @ApiTags('User')
-@ApiExtraModels(UserCreateResponse)
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiResponse({ status: HttpStatus.CREATED, type: UserCreateResponse })
-  @Post('profile')
-  async createUserProfile(@Body() body: UserCreateProfileDto, @Res() res: any) {
+  @ApiOperation({ summary: 'Create new user' })
+  @Post('')
+  async createUserProfile(
+    @Body() body: UserCreateProfileDto,
+  ): Promise<UserCreateResponse> {
     const newUser = await this.userService.createUser(body);
-    return res.status(HttpStatus.CREATED).json(newUser);
+    const result = UserResMapper.toDetailsDto(newUser);
+    console.log('create in controller===>', result);
+    return result;
   }
 
+  @ApiOperation({ summary: 'Get all users' })
   @Get('')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Get all users',
-    type: [UserUpdateResponse],
-  })
   async getAllUsers() {
     return await this.userService.getAllUsers();
   }
 
+  @ApiOperation({ summary: 'Get user by Id' })
   @Get(':userId')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Get a user by ID',
-    type: UserUpdateResponse,
-  })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
-  @ApiParam({ name: 'userId', required: true, description: 'User ID' })
-  async getUserById(@Param() param: { userId: string }, @Res() res: any) {
-    const user = await this.userService.getUserById(param.userId);
-    if (user) {
-      return res.status(HttpStatus.OK).json(user);
-    } else {
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json({ message: 'User not found' });
-    }
+  async getUserById(
+    @Param('userId') userId: string,
+  ): Promise<UserUpdateResponse> {
+    const user = await this.userService.getUserById(userId);
+    return UserResMapper.toDetailsDto(user);
   }
 
+  @ApiOperation({ summary: 'Post phone to user by Id' })
   @Post(':userId/phone')
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Add phone to user',
-    type: UserUpdateResponse,
-  })
-  @ApiParam({ name: 'userId', required: true, description: 'User ID' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   async addUserPhone(
-    @Param() param: { userId: string },
+    @Param('userId') userId: string,
     @Body() body: { phone: string },
-    @Res() res: any,
-  ) {
-    const updatedUser = await this.userService.addUserPhone(
-      param.userId,
-      body.phone,
-    );
-    return res.status(HttpStatus.CREATED).json(updatedUser);
+  ): Promise<UserUpdateResponse> {
+    const updatedUser = await this.userService.addUserPhone(userId, body.phone);
+    return UserResMapper.toDetailsDto(updatedUser);
   }
 
+  @ApiOperation({ summary: 'Updated user by Id' })
   @Patch(':userId')
-  @ApiParam({ name: 'userId', required: true, description: 'User ID' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Update a user by ID',
-    type: UserUpdateResponse,
-  })
   async updateUserById(
-    @Param() param: { userId: string },
+    @Param('userId') userId: string,
     @Body() body: UserUpdateDto,
-    @Res() res: any,
-  ) {
-    const updatedUser = await this.userService.updateUserById(
-      param.userId,
-      body,
-    );
-
-    return res.status(HttpStatus.CREATED).json(updatedUser);
+  ): Promise<UserUpdateResponse> {
+    const updatedUser = await this.userService.updateUserById(userId, body);
+    return UserResMapper.toDetailsDto(updatedUser);
   }
 
+  @ApiOperation({ summary: 'Delete user by Id' })
   @Delete(':userId')
-  @ApiParam({ name: 'userId', required: true, description: 'User ID' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Delete a user by ID' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
-  async deleteUserById(@Param() param: { userId: string }) {
-    const user = await this.userService.getUserById(param.userId);
+  async deleteUserById(@Param('userId') userId: string) {
+    const user = await this.userService.getUserById(userId);
     if (user) {
-      await this.userService.deleteUserById(param.userId);
+      await this.userService.deleteUserById(userId);
       return 'User deleted';
     }
     return 'User not founded';
