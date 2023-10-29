@@ -13,13 +13,13 @@ export class UserEntity extends CreatedUpdatedModel {
   @Column({ type: 'text', nullable: false, unique: true })
   email: string;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'text', nullable: true })
+  phone: string;
+
+  @Column({ type: 'int', nullable: true })
   age: number;
 
-  @Column({ type: 'text', nullable: false })
-  country: string;
-
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true })
   city: string;
 
   @Column({ type: 'boolean', nullable: false })

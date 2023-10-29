@@ -8,9 +8,9 @@ services:
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
-      POSTGRES_DB: march-2023
+      POSTGRES_DB: nest_okten
     volumes:
-      - march-2023-db:/var/lib/postgresql/march-2023
+      - nest_okten-db:/var/lib/postgresql/nest_okten
 
 volumes:
-  march-2023-db:
+  nest_okten-db:

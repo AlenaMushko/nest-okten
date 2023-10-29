@@ -9,7 +9,6 @@ import { CustomConfigModule } from './config/config.module';
 import { CustomConfigService } from './config/config.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
-import { UserService } from './modules/user/user.service';
 
 @Module({
   imports: [
@@ -36,6 +35,6 @@ import { UserService } from './modules/user/user.service';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, UserService],
+  providers: [AppService],
 })
 export class AppModule {}

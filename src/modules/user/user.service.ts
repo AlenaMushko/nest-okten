@@ -1,56 +1,133 @@
-import { Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { UserCreateProfileDto, UserUpdateDto } from './dto/user.dto';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-  private users = [];
-
-  constructor() {}
-
-  async getAllUsers() {
-    return this.users;
-  }
-
-  async getUserById(userId: string) {
-    const user = this.users.find((item) => item.id === userId);
-    return user;
-  }
-
-  async addUserPhone(userId: string, body: string) {
-    const user = this.users.find((item) => item.id === userId);
-    const updatedUser = { ...user, phone: body };
-    this.users.push(updatedUser);
-    return updatedUser;
-  }
-
-  async updateUserById(id: string, body: UserUpdateDto) {
-    const userId = this.users.findIndex((user) => user.id === id);
-
-    if (userId === -1) {
-      throw new Error('User not founded');
-    }
-
-    const updatedUser = { ...this.users[userId], ...body };
-
-    this.users[userId] = updatedUser;
-    return updatedUser;
-  }
-
-  async deleteUserById(userId: string) {
-    const newUsers = this.users.filter((item) => item.id !== userId);
-    this.users = newUsers;
-    return;
-  }
+  constructor(private readonly userRepository: UserRepository) {}
 
   async createUser(userData: UserCreateProfileDto) {
     // if(userData.age <0){
     //     throw new HttpException()
     // }
-    const id = uuidv4();
-    const user = { ...userData, id };
-    this.users.push(user);
-    return user;
+    const newUserEmail = userData.email.trim();
+    const findUser = await this.userRepository.findOne({
+      where: { email: newUserEmail },
+    });
+
+    if (findUser)
+      throw new HttpException('User already exist', HttpStatus.BAD_REQUEST);
+    try {
+      const newUser = await this.userRepository.create(userData);
+      const user = await this.userRepository.save(newUser);
+      return user;
+    } catch (err) {
+      console.log(err.message);
+      throw new HttpException('Create user failed', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getAllUsers() {
+    try {
+      return await this.userRepository.find();
+    } catch (err) {
+      console.log(err.message);
+      throw new HttpException(
+        'Getting all users failed',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async getUserById(userId: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new HttpException(
+          'User does not exist with this ID',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return user;
+    } catch (err) {
+      console.log(err.message);
+      throw new HttpException(
+        'User does not exist with this ID',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async addUserPhone(userId: string, body: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new HttpException(
+          'User does not exist with this ID',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      await this.userRepository.update(userId, {
+        ...user,
+        phone: body.trim(),
+      });
+      const updatedUser = await this.userRepository.findOne({
+        where: { id: userId },
+      });
+
+      return updatedUser;
+    } catch (err) {
+      console.log(err.message);
+      throw new HttpException(
+        'User does not exist with this ID',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async updateUserById(userId: string, body: UserUpdateDto) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new HttpException(
+          'User does not exist with this ID',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      for (const key in body) {
+        if (typeof body[key] !== 'object' && typeof body[key] !== 'boolean') {
+          body[key] = body[key].trim();
+        }
+      }
+
+      await this.userRepository.update(userId, body);
+      const updatedUser = await this.userRepository.findOne({
+        where: { id: userId },
+      });
+
+      return updatedUser;
+    } catch (err) {
+      console.log(err.message);
+      throw new HttpException(
+        'User does not exist with this ID',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async deleteUserById(userId: string) {
+    // const newUsers = this.users.filter((item) => item.id !== userId);
+    // this.users = newUsers;
+    return;
   }
 }
