@@ -26,7 +26,23 @@ export class UserCreateProfileDto {
   status: boolean;
 }
 
-export class UserUpdateDto extends UserCreateProfileDto {
+export class UserUpdateDto {
+  @ApiProperty({ example: 'Alona' })
+  @IsString()
+  @IsOptional()
+  userName: string;
+
+  @ApiProperty({ example: 'user@gmail.com' })
+  @IsString()
+  @IsEmail()
+  @IsOptional()
+  email: string;
+
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  @IsOptional()
+  status: boolean;
+
   @ApiProperty({ example: '+38(093)-52-24-590' })
   @IsString()
   @IsOptional()

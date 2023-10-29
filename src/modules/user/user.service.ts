@@ -105,7 +105,7 @@ export class UserService {
       }
 
       for (const key in body) {
-        if (typeof body[key] !== 'object' && typeof body[key] !== 'boolean') {
+        if (typeof body[key] === 'string') {
           body[key] = body[key].trim();
         }
       }
@@ -126,8 +126,27 @@ export class UserService {
   }
 
   async deleteUserById(userId: string) {
-    // const newUsers = this.users.filter((item) => item.id !== userId);
-    // this.users = newUsers;
-    return;
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+      });
+      console.log('userId when del', userId);
+      if (!user) {
+        throw new HttpException(
+          'User does not exist with this ID',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      await this.userRepository.delete(userId);
+
+      return;
+    } catch (err) {
+      console.log(err.message);
+      throw new HttpException(
+        'User does not exist with this ID',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }
