@@ -4,19 +4,18 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 
+import { IList } from '../../common/interface/list.interface';
 import { UserEntity } from '../../database/entities/user.entity';
-import { UserCreateProfileDto, UserUpdateDto } from './dto/user.dto';
+import { UserCreateReqDto } from './dto/req/user-create.req.dto';
+import { UserListQueryRequestDto } from './dto/req/user-list-query.request.dto';
+import { UserUpdateReqDto } from './dto/req/user-update.req.dto';
 import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  public async createUser(userData: UserCreateProfileDto) {
-    // if(userData.age <0){
-    //     throw new HttpException()
-    // }
-    // const newUserEmail = userData.email.trim();
+  public async createUser(userData: UserCreateReqDto) {
     const findUser = await this.userRepository.findOneBy({
       email: userData.email,
     });
@@ -28,8 +27,10 @@ export class UserService {
     return user;
   }
 
-  public async getAllUsers() {
-    return await this.userRepository.find();
+  public async getAllUsers(
+    query: UserListQueryRequestDto,
+  ): Promise<IList<UserEntity>> {
+    return await this.userRepository.getAllUsers(query);
   }
 
   public async getUserById(userId: string): Promise<UserEntity> {
@@ -49,25 +50,20 @@ export class UserService {
 
   public async updateUserById(
     userId: string,
-    body: UserUpdateDto,
+    body: UserUpdateReqDto,
   ): Promise<UserEntity> {
-    await this.findUserById(userId);
-    // for (const key in body) {
-    //   if (typeof body[key] === 'string') {
-    //     body[key] = body[key].trim();
-    //   }
-    // }
-
-    await this.userRepository.update(userId, body);
+    const user = await this.findUserById(userId);
+    const result = this.userRepository.merge(user, body); //зливаємо юзера і те що прийшло
+    await this.userRepository.save(result);
+    // await this.userRepository.update(userId, body);
     const updatedUser = await this.findUserById(userId);
     return updatedUser;
   }
 
   public async deleteUserById(userId: string): Promise<UserEntity> {
-    await await this.findUserById(userId);
-
-    await this.userRepository.delete(userId);
-
+    const user = await await this.findUserById(userId);
+    // await this.userRepository.delete(userId);
+    await this.userRepository.restore(user);
     return;
   }
 

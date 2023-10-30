@@ -3,18 +3,20 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import {
-  UserCreateProfileDto,
-  UserCreateResponse,
-  UserUpdateDto,
-  UserUpdateResponse,
-} from './dto/user.dto';
+import { UserCreateReqDto } from './dto/req/user-create.req.dto';
+import { UserListQueryRequestDto } from './dto/req/user-list-query.request.dto';
+import { UserUpdateReqDto } from './dto/req/user-update.req.dto';
+import { UserDetailsResponseDto } from './dto/res/user-details.response.dto';
+import { UserListResponseDto } from './dto/res/user-list.response.dto';
 import { UserResMapper } from './user.res.mapper';
 import { UserService } from './user.service';
 
@@ -26,25 +28,27 @@ export class UserController {
   @ApiOperation({ summary: 'Create new user' })
   @Post('')
   async createUserProfile(
-    @Body() body: UserCreateProfileDto,
-  ): Promise<UserCreateResponse> {
+    @Body() body: UserCreateReqDto,
+  ): Promise<UserDetailsResponseDto> {
     const newUser = await this.userService.createUser(body);
     const result = UserResMapper.toDetailsDto(newUser);
-    console.log('create in controller===>', result);
     return result;
   }
 
   @ApiOperation({ summary: 'Get all users' })
   @Get('')
-  async getAllUsers() {
-    return await this.userService.getAllUsers();
+  async getAllUsers(
+    @Query() query: UserListQueryRequestDto,
+  ): Promise<UserListResponseDto> {
+    const users = await this.userService.getAllUsers(query);
+    return UserResMapper.toListDto(users, query);
   }
 
   @ApiOperation({ summary: 'Get user by Id' })
   @Get(':userId')
   async getUserById(
     @Param('userId') userId: string,
-  ): Promise<UserUpdateResponse> {
+  ): Promise<UserDetailsResponseDto> {
     const user = await this.userService.getUserById(userId);
     return UserResMapper.toDetailsDto(user);
   }
@@ -54,7 +58,7 @@ export class UserController {
   async addUserPhone(
     @Param('userId') userId: string,
     @Body() body: { phone: string },
-  ): Promise<UserUpdateResponse> {
+  ): Promise<UserDetailsResponseDto> {
     const updatedUser = await this.userService.addUserPhone(userId, body.phone);
     return UserResMapper.toDetailsDto(updatedUser);
   }
@@ -63,12 +67,13 @@ export class UserController {
   @Patch(':userId')
   async updateUserById(
     @Param('userId') userId: string,
-    @Body() body: UserUpdateDto,
-  ): Promise<UserUpdateResponse> {
+    @Body() body: UserUpdateReqDto,
+  ): Promise<UserDetailsResponseDto> {
     const updatedUser = await this.userService.updateUserById(userId, body);
     return UserResMapper.toDetailsDto(updatedUser);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete user by Id' })
   @Delete(':userId')
   async deleteUserById(@Param('userId') userId: string) {

@@ -7,10 +7,10 @@ export class UserEntity extends CreatedUpdatedModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
   userName: string;
 
-  @Column({ type: 'text', nullable: false, unique: true })
+  @Column({ type: 'text', unique: true })
   email: string;
 
   @Column({ type: 'text', nullable: true })
@@ -22,6 +22,6 @@ export class UserEntity extends CreatedUpdatedModel {
   @Column({ type: 'text', nullable: true })
   city: string;
 
-  @Column({ type: 'boolean', nullable: false })
+  @Column({ type: 'boolean', nullable: true })
   status: boolean;
 }

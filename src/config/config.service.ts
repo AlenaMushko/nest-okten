@@ -10,23 +10,31 @@ export class CustomConfigService {
     private readonly configs: ConfigType<typeof configuration>,
   ) {}
 
-  get host(): string {
+  get app_port(): string {
+    return this.configs.app_port;
+  }
+
+  get app_host(): string {
+    return this.configs.app_host;
+  }
+
+  get db_host(): string {
     return this.configs.db_host;
   }
 
-  get port(): number {
+  get db_port(): number {
     return this.configs.db_post;
   }
 
-  get username(): string {
+  get db_username(): string {
     return this.configs.db_username;
   }
 
-  get password(): string {
+  get db_password(): string {
     return this.configs.db_password;
   }
 
-  get db(): string {
+  get db_db(): string {
     return this.configs.db_database;
   }
 }
